@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OSGi Annotation For Injection
+Bundle-SymbolicName: cl.annotation;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: cl.annotation
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: javax.inject;bundle-version="1.0.0";visibility:=reexport,
+ org.eclipse.e4.core.di;visibility:=reexport,
+ org.eclipse.osgi;visibility:=reexport,
+ org.eclipse.osgi.services;visibility:=reexport
+Service-Component: OSGI-INF/cl.annotation.internal.OSGiNamedObjectSupplier.xml
+Bundle-ActivationPolicy: lazy
+Export-Package: cl.annotation,
+ cl.annotation.internal;x-friends:="cl.annotation.test"
+Bundle-ClassPath: .
+Bundle-Vendor: CL

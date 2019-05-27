@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Run1">
+   <property name="p" value="Run1"/>
+   <property name="key" value="value"/>
+   <property name="service.ranking" type="Integer" value="1"/>
+   <service>
+      <provide interface="cl.annotation.test.OSGiNamed_TestCase$Run1"/>
+      <provide interface="cl.annotation.test.OSGiNamed_TestCase$IMultipleService"/>
+   </service>
+   <implementation class="cl.annotation.test.OSGiNamed_TestCase$Run1"/>
+</scr:component>

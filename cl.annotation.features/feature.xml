@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="cl.annotation.features"
+      label="OSGi Annotation For Injection Features"
+      version="1.0.0.qualifier"
+      provider-name="CL">
+
+   <description>
+      OSGi annotation for injection v1.0.0
+
+Allow to inject the OSGi service with multiple criteria
+
+# Multiple service with same interface
+@Component(name = &quot;TODO1&quot;, property = {&quot;service.ranking:Integer=1&quot;, &quot;key=value&quot;)
+@MyAnnotation1
+public class TodoService1 implements ITodoService, IRunnable
+{
+	...
+}
+
+@Component(name = &quot;TODO2&quot;, property = &quot;service.ranking:Integer=2&quot;, &quot;key=value&quot;)
+@MyAnnotation2
+public class TodoService2 implements ITodoService
+{
+	...
+}
+
+# To inject service with component.name
+@Inject
+@OSGiNamed(&quot;TODO1&quot;)
+ITodoService todoService; // get TodoService1 implementation
+
+# To inject service with property values
+
+@Inject
+@OSGiNamed(property = {&quot;service.ranking=2&quot;})
+ITodoService todoService; // get TodoService2 implementation
+
+# To inject service with filter using LDAP format
+@Inject
+@OSGiNamed(filter = &quot;(&amp;(service.ranking=2)(key=value))&quot;)
+ITodoService todoService; // get TodoService2 implementation
+
+# To inject service with annotation
+@Inject
+@OSGiNamed(annotations = MyAnnotation2.class)
+ITodoService todoService; // get TodoService2 implementation
+
+# To inject service with type
+@Inject
+@OSGiNamed(types = Runnable.class)
+ITodoService todoService; // get TodoService1 implementation
+
+# To inject service with highest ranking
+@Inject
+@OSGiNamed(property = &quot;key=value&quot;)
+ITodoService todoService; // InjectionException 2 implementations exist with property &quot;key=value&quot;
+
+@Inject
+@OSGiNamed(property = &quot;key=value&quot;, takeHighestRankingIfMultiple = true)
+ITodoService todoService; // get TodoService2 implementation service.ranking is highest
+
+# To retrieve all implementations
+@Inject
+@OSGiNamed(&lt;criterium&gt;)
+Collection&lt;? extends ITodoService&gt; todoServices; // get TodoService1 and TodoService2 implementations
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="cl.annotation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

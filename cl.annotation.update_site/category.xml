@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/cl.annotation.features_1.0.0.qualifier.jar" id="cl.annotation.features" version="1.0.0.qualifier">
+      <category name="cl.annotation"/>
+   </feature>
+   <category-def name="cl.annotation" label="OSGi Annotation For Injection">
+      <description>
+         OSGi annotation for injection
+      </description>
+   </category-def>
+</site>
