@@ -23,7 +23,6 @@ import org.eclipse.e4.core.di.suppliers.IRequestor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Component;
@@ -99,14 +98,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
         if (generatedFilter != null)
           trackingFilter = "(&" + trackingFilter + generatedFilter + ")";
 
-        serviceListener = new ServiceListener() {
-          @Override
-          public void serviceChanged(ServiceEvent event)
-          {
-            for(Map.Entry<Class<?>, Set<IRequestor>> entry : listeners.entrySet())
-              notifyRequestor(entry.getValue());
-          }
-        };
+        serviceListener = event -> notifyRequestor(requestor);
         serviceListeners.put(requestor, serviceListener);
 
         // add tracking
@@ -342,21 +334,9 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     return null;
   }
 
-  private static void notifyRequestor(Collection<IRequestor> requestors)
+  private static void notifyRequestor(IRequestor requestor)
   {
-    if (requestors != null)
-    {
-      for(Iterator<IRequestor> it = requestors.iterator(); it.hasNext();)
-      {
-        IRequestor requestor = it.next();
-        if (!requestor.isValid())
-        {
-          it.remove();
-          continue;
-        }
-        requestor.resolveArguments(false);
-        requestor.execute();
-      }
-    }
+    requestor.resolveArguments(false);
+    requestor.execute();
   }
 }

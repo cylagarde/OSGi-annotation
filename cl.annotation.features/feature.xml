@@ -2,7 +2,7 @@
 <feature
       id="cl.annotation.features"
       label="OSGi Annotation For Injection Features"
-      version="1.0.0.qualifier"
+      version="1.0.1.qualifier"
       provider-name="CL">
 
    <description>
@@ -15,14 +15,14 @@ Allow to inject the OSGi service with multiple criteria
 @MyAnnotation1
 public class TodoService1 implements ITodoService, IRunnable
 {
-	...
+ ...
 }
 
 @Component(name = &quot;TODO2&quot;, property = &quot;service.ranking:Integer=2&quot;, &quot;key=value&quot;)
 @MyAnnotation2
 public class TodoService2 implements ITodoService
 {
-	...
+ ...
 }
 
 # To inject service with component.name
