@@ -2,11 +2,11 @@
 <feature
       id="cl.annotation.features"
       label="OSGi Annotation For Injection Features"
-      version="1.0.1.qualifier"
+      version="1.0.2.qualifier"
       provider-name="CL">
 
    <description>
-      OSGi annotation for injection v1.0.0
+      OSGi annotation for injection v1.0.2
 
 Allow to inject the OSGi service with multiple criteria
 

@@ -31,7 +31,6 @@ import cl.annotation.OSGiNamed;
 
 /**
  * The class <b>OSGiNamedObjectSupplier</b> allows to select object injected.<br>
- *
  * @Inject
  * @OSGiNamed("<component name>")
  * ITodoService todoService;
@@ -141,10 +140,14 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     {
       if (isCollection)
         return Collections.emptyList();
-      if (!descriptor.hasQualifier(Optional.class))
-        return IInjector.NOT_A_VALUE;
-      return null;
+      if (descriptor.hasQualifier(Optional.class))
+        return null;
+      return IInjector.NOT_A_VALUE;
     }
+
+    //
+    if (isCollection)
+      return status.getServices();
 
     //
     if (takeHighestRankingIfMultiple || serviceCount == 1)
@@ -152,10 +155,6 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
       Object service = status.getFirstService();
       return isCollection? Collections.singletonList(service) : service;
     }
-
-    //
-    if (isCollection)
-      return status.getServices();
 
     throw new InjectionException("Unable to process \"" + requestor + "\": " + serviceCount + " values were found for the argument \"" + descriptor + "\"");
   }

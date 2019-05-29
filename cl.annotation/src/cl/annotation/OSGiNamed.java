@@ -25,7 +25,7 @@ public @interface OSGiNamed
   String filter() default "";
 
   /** take highest 'service.ranking' property if multiple otherwise throw exception */
-  boolean takeHighestRankingIfMultiple() default false;
+  boolean takeHighestRankingIfMultiple() default true;
 
   /** service annotations */
   Class<? extends Annotation>[] annotations() default {};

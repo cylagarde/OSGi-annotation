@@ -1,4 +1,4 @@
-# OSGi annotation for injection v1.0.0
+# OSGi annotation for injection v1.0.2
 
 Allow to inject the OSGi service with multiple criteria
 
@@ -52,11 +52,11 @@ ITodoService todoService; // get TodoService1 implementation
 ```
 @Inject
 @OSGiNamed(property = "key=value")
-ITodoService todoService; // InjectionException 2 implementations exist with property "key=value"
+ITodoService todoService; // get TodoService2 implementation service.ranking is highest
 
 @Inject
-@OSGiNamed(property = "key=value", takeHighestRankingIfMultiple = true)
-ITodoService todoService; // get TodoService2 implementation service.ranking is highest
+@OSGiNamed(property = "key=value", takeHighestRankingIfMultiple = false)
+ITodoService todoService; // InjectionException 2 implementations exist with property "key=value"
 ```
 # To retrieve all implementations
 ```
