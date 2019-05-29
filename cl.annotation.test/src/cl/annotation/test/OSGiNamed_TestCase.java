@@ -333,6 +333,7 @@ public class OSGiNamed_TestCase
     IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
 
     CollectionService collectionService = ContextInjectionFactory.make(CollectionService.class, eclipseCtx);
+    assertEquals(1, collectionService.call);
     assertEquals(2, collectionService.multipleServices.size());
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
@@ -350,6 +351,7 @@ public class OSGiNamed_TestCase
 
     try
     {
+      assertEquals(2, collectionService.call);
       assertEquals(3, collectionService.multipleServices.size());
       assertEquals(3, collectionService.multipleServices2.size());
       assertEquals(1, collectionService.multipleServices3.size());
@@ -367,6 +369,7 @@ public class OSGiNamed_TestCase
       registerService.unregister();
     }
 
+    assertEquals(3, collectionService.call);
     assertEquals(2, collectionService.multipleServices.size());
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
@@ -544,6 +547,8 @@ public class OSGiNamed_TestCase
 
   public static class CollectionService
   {
+    int call = 0;
+
     @Inject
     @OSGiNamed
     Collection<? extends IMultipleService> multipleServices;
@@ -555,6 +560,13 @@ public class OSGiNamed_TestCase
     @Inject
     @OSGiNamed(property = "service.ranking=3")
     Collection<IMultipleService> multipleServices3;
+
+    @Inject
+    void setServices(@OSGiNamed Collection<IMultipleService> multipleServices2)
+    {
+      call++;
+      System.out.println(call);
+    }
   }
 
   interface IMultipleService

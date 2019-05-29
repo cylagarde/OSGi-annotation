@@ -269,7 +269,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
       return bundleContext.getService(refs[0]);
     }
 
-    public List<Object> getServices()
+    List<Object> getServices()
     {
       fillAllServices();
 
@@ -284,9 +284,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
   private void addListener(Class<?> descriptorsClass, IRequestor requestor)
   {
-    Set<IRequestor> registered = this.listeners.computeIfAbsent(descriptorsClass, (dc) -> {
-      return ConcurrentHashMap.newKeySet();
-    });
+    Set<IRequestor> registered = this.listeners.computeIfAbsent(descriptorsClass, dc -> ConcurrentHashMap.newKeySet());
     registered.add(requestor);
   }
 
@@ -329,7 +327,6 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
         if (wildcardType.getUpperBounds().length == 1)
           return wildcardType.getUpperBounds()[0];
       }
-
     }
     return null;
   }
