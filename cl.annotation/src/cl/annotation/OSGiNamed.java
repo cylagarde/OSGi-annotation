@@ -24,7 +24,7 @@ public @interface OSGiNamed
   /** component filter in LDAP format */
   String filter() default "";
 
-  /** take highest 'service.ranking' property if multiple otherwise throw exception */
+  /** take highest 'service.ranking' property if multiple otherwise throw InjectionException */
   boolean takeHighestRankingIfMultiple() default true;
 
   /** service annotations */
@@ -32,4 +32,10 @@ public @interface OSGiNamed
 
   /** service types */
   Class<?>[] types() default {};
+
+  /** bundle name */
+  String bundleName() default "";
+
+  /** bundle version range */
+  String bundleVersionRange() default "";
 }

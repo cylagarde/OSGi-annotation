@@ -1,6 +1,6 @@
-# OSGi annotation for injection v1.0.2
+# OSGi annotation for injection v1.1.0
 
-Allow to inject the OSGi service with multiple criteria
+Allow to inject the OSGi service with multiple criterions
 
 # Multiple service with same interface
 ```
@@ -58,10 +58,32 @@ ITodoService todoService; // get TodoService2 implementation service.ranking is 
 @OSGiNamed(property = "key=value", takeHighestRankingIfMultiple = false)
 ITodoService todoService; // InjectionException 2 implementations exist with property "key=value"
 ```
+# To inject service with bundle name
+```
+@Inject
+@OSGiNamed(bundleName = "cl.annotation.test")
+ITodoService todoService;
+```
+```
+@Inject
+@OSGiNamed(bundleName = "cl.annotation.*")
+ITodoService todoService;
+```
+# To inject service with bundle version range
+```
+@Inject
+@OSGiNamed(bundleVersionRange = "1.0.0")
+ITodoService todoService;
+```
+```
+@Inject
+@OSGiNamed(bundleVersionRange = "[1.0.0,2.0.0)")
+ITodoService todoService;
+```
 # To retrieve all implementations
 ```
 @Inject
-@OSGiNamed(<criterium>)
+@OSGiNamed(<criterion>)
 Collection<? extends ITodoService> todoServices; // get TodoService1 and TodoService2 implementations
 ```
 

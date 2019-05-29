@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 import org.eclipse.e4.core.di.IInjector;
 import org.eclipse.e4.core.di.InjectionException;
@@ -25,12 +26,14 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.VersionRange;
 import org.osgi.service.component.annotations.Component;
 
 import cl.annotation.OSGiNamed;
 
 /**
  * The class <b>OSGiNamedObjectSupplier</b> allows to select object injected.<br>
+ *
  * @Inject
  * @OSGiNamed("<component name>")
  * ITodoService todoService;
@@ -63,6 +66,8 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     boolean takeHighestRankingIfMultiple = osgiNamed.takeHighestRankingIfMultiple();
     Class<? extends Annotation>[] annotations = osgiNamed.annotations();
     Class<?>[] types = osgiNamed.types();
+    String bundleName = osgiNamed.bundleName();
+    String bundleVersionRange = osgiNamed.bundleVersionRange();
 
     Type desiredType = descriptor.getDesiredType();
     Class<?> desiredClass = getDesiredClass(desiredType);
@@ -133,6 +138,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
     status.filterAnnotations(annotations);
     status.filterTypes(types);
+    status.filterBundle(bundleName, bundleVersionRange);
 
     //
     int serviceCount = status.serviceCount();
@@ -242,6 +248,54 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
       }
     }
 
+    void filterBundle(String bundleName, String bundleVersionRange)
+    {
+      if (!"".equals(bundleName) || !"".equals(bundleVersionRange))
+      {
+        Pattern pattern = null;
+        fillAllServices();
+        for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
+        {
+          Object service = iterator.next();
+
+          Bundle bundle = FrameworkUtil.getBundle(service.getClass());
+          if (bundle == null)
+            iterator.remove();
+          else if (!"".equals(bundleName))
+          {
+            if (!bundle.getSymbolicName().equals(bundleName))
+            {
+              // check with regex
+              if (pattern == null)
+              {
+                String regexpPattern = Pattern.quote(bundleName);
+                regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
+                regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
+                regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
+                pattern = Pattern.compile(regexpPattern);
+              }
+
+              if (!pattern.matcher(bundle.getSymbolicName()).matches())
+                iterator.remove();
+            }
+          }
+          else if (!"".equals(bundleVersionRange))
+          {
+            try
+            {
+              VersionRange versionRange = new VersionRange(bundleVersionRange);
+              if (!versionRange.includes(bundle.getVersion()))
+                iterator.remove();
+            }
+            catch(IllegalArgumentException iae)
+            {
+              throw new InjectionException(iae);
+            }
+          }
+        }
+      }
+    }
+
     void fillAllServices()
     {
       if (services != null)
@@ -332,7 +386,10 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
   private static void notifyRequestor(IRequestor requestor)
   {
-    requestor.resolveArguments(false);
-    requestor.execute();
+    if (requestor.isValid())
+    {
+      requestor.resolveArguments(false);
+      requestor.execute();
+    }
   }
 }
