@@ -260,32 +260,38 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
           Bundle bundle = FrameworkUtil.getBundle(service.getClass());
           if (bundle == null)
-            iterator.remove();
-          else if (!"".equals(bundleName))
           {
-            if (!bundle.getSymbolicName().equals(bundleName))
+            iterator.remove();
+            continue;
+          }
+          if (!"".equals(bundleName) && !bundle.getSymbolicName().equals(bundleName))
+          {
+            // check with regex
+            if (pattern == null)
             {
-              // check with regex
-              if (pattern == null)
-              {
-                String regexpPattern = Pattern.quote(bundleName);
-                regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
-                regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
-                regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
-                pattern = Pattern.compile(regexpPattern);
-              }
+              String regexpPattern = Pattern.quote(bundleName);
+              regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
+              regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
+              regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
+              pattern = Pattern.compile(regexpPattern);
+            }
 
-              if (!pattern.matcher(bundle.getSymbolicName()).matches())
-                iterator.remove();
+            if (!pattern.matcher(bundle.getSymbolicName()).matches())
+            {
+              iterator.remove();
+              continue;
             }
           }
-          else if (!"".equals(bundleVersionRange))
+          if (!"".equals(bundleVersionRange))
           {
             try
             {
               VersionRange versionRange = new VersionRange(bundleVersionRange);
               if (!versionRange.includes(bundle.getVersion()))
+              {
                 iterator.remove();
+                continue;
+              }
             }
             catch(IllegalArgumentException iae)
             {
