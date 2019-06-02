@@ -34,8 +34,8 @@ public @interface OSGiNamed
   Class<?>[] types() default {};
 
   /** bundle name */
-  String bundleName() default "";
+  String[] bundleNames() default {};
 
   /** bundle version range */
-  String bundleVersionRange() default "";
+  String[] bundleVersionRanges() default {};
 }

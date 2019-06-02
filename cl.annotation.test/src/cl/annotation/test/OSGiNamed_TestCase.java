@@ -55,7 +55,7 @@ public class OSGiNamed_TestCase
   public void testFake()
   {
     Type desiredType = IFake.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -67,7 +67,7 @@ public class OSGiNamed_TestCase
   public void testOptionalFake()
   {
     Type desiredType = IFake.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", ""), new OptionalImpl()};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0]), new OptionalImpl()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -79,7 +79,7 @@ public class OSGiNamed_TestCase
   public void testOneService()
   {
     Type desiredType = IOneService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -91,7 +91,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_takeHighestRankingIfMultiple()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, false, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, false, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -102,7 +102,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -115,7 +115,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_name()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("Run1", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("Run1", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -123,7 +123,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("Run2", new String[]{}, "", new Class[]{}, new Class[]{}, false, "", "");
+    annotations[0] = new OSGiNamedImpl("Run2", new String[]{}, "", new Class[]{}, new Class[]{}, false, new String[0], new String[0]);
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -134,7 +134,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_property()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"p=Run1"}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"p=Run1"}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -142,7 +142,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{"p=Run2"}, "", new Class[]{}, new Class[]{}, true, "", "");
+    annotations[0] = new OSGiNamedImpl("", new String[]{"p=Run2"}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0]);
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -153,7 +153,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_filter()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "(p=Run1)", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "(p=Run1)", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -161,7 +161,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "(p=Run2)", new Class[]{}, new Class[]{}, true, "", "");
+    annotations[0] = new OSGiNamedImpl("", new String[]{}, "(p=Run2)", new Class[]{}, new Class[]{}, true, new String[0], new String[0]);
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -172,7 +172,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_annotations()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun1.class}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun1.class}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -180,7 +180,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun2.class}, new Class[]{}, true, "", "");
+    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun2.class}, new Class[]{}, true, new String[0], new String[0]);
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -191,7 +191,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_types()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun1.class}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun1.class}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -199,7 +199,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun2.class}, true, "", "");
+    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun2.class}, true, new String[0], new String[0]);
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -210,7 +210,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_tracking()
   {
     Type desiredType = IOneService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = new IRequestor() {
       @Override
@@ -384,7 +384,7 @@ public class OSGiNamed_TestCase
   public void testTypeGeneric() throws Exception
   {
     Type desiredType = TypeGeneric.class.getDeclaredField("typeGeneric").getGenericType();
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -396,7 +396,7 @@ public class OSGiNamed_TestCase
   public void testCollectionTypeGeneric() throws Exception
   {
     Type desiredType = TypeGeneric.class.getDeclaredField("typeGenerics").getGenericType();
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -418,15 +418,57 @@ public class OSGiNamed_TestCase
     assertNull(bundleNameService.badVersionRange);
     assertTrue(Run2.class.isInstance(bundleNameService.validVersionRange));
     assertTrue(Run2.class.isInstance(bundleNameService.validVersionRange2));
+    assertTrue(Run2.class.isInstance(bundleNameService.validVersionNameRange));
+    assertNull(bundleNameService.badVersionRange2);
 
     ContextInjectionFactory.uninject(bundleNameService, eclipseCtx);
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = InjectionException.class)
+  public void testMultipleService_bundleNameAndVersion_badInput()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    ContextInjectionFactory.make(BundleServiceBadInput.class, eclipseCtx);
+  }
+
+  @Test(expected = InjectionException.class)
+  public void testMultipleService_bundleNameAndVersion_badInput2()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    ContextInjectionFactory.make(BundleServiceBadInput2.class, eclipseCtx);
+  }
+
+  @Test(expected = InjectionException.class)
+  public void testMultipleService_bundleNameAndVersion_badInput3()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    ContextInjectionFactory.make(BundleServiceBadInput3.class, eclipseCtx);
+  }
+
+  @Test(expected = InjectionException.class)
+  public void testMultipleService_bundleNameAndVersion_badInput4()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    ContextInjectionFactory.make(BundleServiceBadInput4.class, eclipseCtx);
+  }
+
+  @Test(expected = InjectionException.class)
   public void testMultipleService_bad_criterion()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("visa", new String[]{"p=Run1"}, "p:=Run1", new Class[]{}, new Class[]{}, false, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("visa", new String[]{"p=Run1"}, "p:=Run1", new Class[]{}, new Class[]{}, false, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -437,7 +479,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion2()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -448,7 +490,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion3()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("fake", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, "", "")};
+    Annotation[] annotations = {new OSGiNamedImpl("fake", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, new String[0], new String[0])};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -466,10 +508,10 @@ public class OSGiNamed_TestCase
     final Class<?>[] types;
     final Class<? extends Annotation>[] annotations;
     final boolean takeHighestRankingIfMultiple;
-    final String bundleName;
-    final String bundleVersion;
+    final String[] bundleNames;
+    final String[] bundleVersions;
 
-    OSGiNamedImpl(String value, String[] property, String filter, Class<? extends Annotation>[] annotations, Class<?>[] types, boolean takeHighestRankingIfMultiple, String bundleName, String bundleVersion)
+    OSGiNamedImpl(String value, String[] property, String filter, Class<? extends Annotation>[] annotations, Class<?>[] types, boolean takeHighestRankingIfMultiple, String[] bundleNames, String[] bundleVersions)
     {
       this.value = value;
       this.property = property;
@@ -477,8 +519,8 @@ public class OSGiNamed_TestCase
       this.annotations = annotations;
       this.types = types;
       this.takeHighestRankingIfMultiple = takeHighestRankingIfMultiple;
-      this.bundleName = bundleName;
-      this.bundleVersion = bundleVersion;
+      this.bundleNames = bundleNames;
+      this.bundleVersions = bundleVersions;
     }
 
     @Override
@@ -524,15 +566,15 @@ public class OSGiNamed_TestCase
     }
 
     @Override
-    public String bundleName()
+    public String[] bundleNames()
     {
-      return bundleName;
+      return bundleNames;
     }
 
     @Override
-    public String bundleVersionRange()
+    public String[] bundleVersionRanges()
     {
-      return bundleVersion;
+      return bundleVersions;
     }
   }
 
@@ -607,29 +649,71 @@ public class OSGiNamed_TestCase
   {
     @Inject
     @Optional
-    @OSGiNamed(bundleName = "!fake!")
+    @OSGiNamed(bundleNames = "!fake!")
     IMultipleService badVersionName;
 
     @Inject
-    @OSGiNamed(bundleName = "cl.annotation.test")
+    @OSGiNamed(bundleNames = "cl.annotation.test")
     IMultipleService validVersionName;
 
     @Inject
-    @OSGiNamed(bundleName = "cl.annotation.*")
+    @OSGiNamed(bundleNames = "cl.annotation.*")
     IMultipleService validVersionName2;
 
     @Inject
-    @OSGiNamed(bundleVersionRange = "1.0.0")
+    @OSGiNamed(bundleVersionRanges = "1.0.0")
     IMultipleService validVersionRange;
 
     @Inject
-    @OSGiNamed(bundleVersionRange = "[1.0.0,100)")
+    @OSGiNamed(bundleVersionRanges = "[1.0.0,100)")
     IMultipleService validVersionRange2;
 
     @Inject
     @Optional
-    @OSGiNamed(bundleVersionRange = "[0.0.1, 1.0.0)")
+    @OSGiNamed(bundleVersionRanges = "[0.0.1, 1.0.0)")
     IMultipleService badVersionRange;
+
+    @Inject
+    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = "1.0.0")
+    IMultipleService validVersionNameRange;
+
+    @Inject
+    @OSGiNamed(bundleNames = {"cl.annotation.test", "cl.annotation"}, bundleVersionRanges = {"1.0.0", "1.1.0"})
+    IMultipleService validVersionNameRange2;
+
+    @Inject
+    @Optional
+    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = "100.0.0")
+    IMultipleService badVersionRange2;
+
+  }
+
+  public static class BundleServiceBadInput
+  {
+    @Inject
+    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = {"1.0.0", "1.0.0"})
+    IMultipleService badInput;
+  }
+
+  public static class BundleServiceBadInput2
+  {
+    @Inject
+    @OSGiNamed(bundleNames = {"cl.annotation.test", "cl.annotation"}, bundleVersionRanges = {"1.0.0"})
+    IMultipleService badInput;
+  }
+
+  public static class BundleServiceBadInput3
+  {
+    @Inject
+    @OSGiNamed(bundleNames = {"cl.annotation.test"}, bundleVersionRanges = {"fake"})
+    IMultipleService badInput;
+  }
+
+  public static class BundleServiceBadInput4
+  {
+    @Inject
+    @OSGiNamed(bundleVersionRanges = {"fake"})
+    IMultipleService badInput;
   }
 
   interface IMultipleService

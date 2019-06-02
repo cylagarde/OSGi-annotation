@@ -66,8 +66,8 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     boolean takeHighestRankingIfMultiple = osgiNamed.takeHighestRankingIfMultiple();
     Class<? extends Annotation>[] annotations = osgiNamed.annotations();
     Class<?>[] types = osgiNamed.types();
-    String bundleName = osgiNamed.bundleName();
-    String bundleVersionRange = osgiNamed.bundleVersionRange();
+    String[] bundleNames = osgiNamed.bundleNames();
+    String[] bundleVersionRanges = osgiNamed.bundleVersionRanges();
 
     Type desiredType = descriptor.getDesiredType();
     Class<?> desiredClass = getDesiredClass(desiredType);
@@ -138,7 +138,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
     status.filterAnnotations(annotations);
     status.filterTypes(types);
-    status.filterBundle(bundleName, bundleVersionRange);
+    status.filterBundles(bundleNames, bundleVersionRanges);
 
     //
     int serviceCount = status.serviceCount();
@@ -248,11 +248,26 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
       }
     }
 
-    void filterBundle(String bundleName, String bundleVersionRange)
+    void filterBundles(String[] bundleNames, String[] bundleVersionRanges)
     {
-      if (!"".equals(bundleName) || !"".equals(bundleVersionRange))
+      if (bundleNames.length != 0 || bundleVersionRanges.length != 0)
       {
-        Pattern pattern = null;
+        // check same arrays size
+        if (bundleVersionRanges.length != 0)
+        {
+          if (bundleVersionRanges.length == 1)
+          {
+            if (bundleNames.length > 1)
+              throw new InjectionException("bundleNames have " + bundleNames.length + " entries but bundleVersionRanges have " + bundleVersionRanges.length + " entries");
+          }
+          else
+          {
+            if (bundleNames.length != bundleVersionRanges.length)
+              throw new InjectionException("bundleNames have " + bundleNames.length + " entries but bundleVersionRanges have " + bundleVersionRanges.length + " entries");
+          }
+        }
+
+        Pattern[] patterns = new Pattern[bundleNames.length];
         fillAllServices();
         for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
         {
@@ -264,42 +279,89 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
             iterator.remove();
             continue;
           }
-          if (!"".equals(bundleName) && !bundle.getSymbolicName().equals(bundleName))
-          {
-            // check with regex
-            if (pattern == null)
-            {
-              String regexpPattern = Pattern.quote(bundleName);
-              regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
-              regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
-              regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
-              pattern = Pattern.compile(regexpPattern);
-            }
 
-            if (!pattern.matcher(bundle.getSymbolicName()).matches())
+          String symbolicName = bundle.getSymbolicName();
+
+          // check name
+          int foundIndex = findBundleName(symbolicName, bundleNames);
+          if (foundIndex == -1)
+            foundIndex = findBundleNameWithPatterns(symbolicName, bundleNames, patterns);
+
+          if (foundIndex != -1)
+          {
+            if (bundleVersionRanges.length != 0)
             {
-              iterator.remove();
-              continue;
+              try
+              {
+                VersionRange versionRange = new VersionRange(bundleVersionRanges[foundIndex]);
+                if (!versionRange.includes(bundle.getVersion()))
+                  foundIndex = -1;
+              }
+              catch(IllegalArgumentException iae)
+              {
+                throw new InjectionException(iae);
+              }
             }
           }
-          if (!"".equals(bundleVersionRange))
+          else if (bundleNames.length == 0)
           {
             try
             {
-              VersionRange versionRange = new VersionRange(bundleVersionRange);
-              if (!versionRange.includes(bundle.getVersion()))
-              {
-                iterator.remove();
-                continue;
-              }
+              VersionRange versionRange = new VersionRange(bundleVersionRanges[0]);
+              if (versionRange.includes(bundle.getVersion()))
+                foundIndex = 0;
             }
             catch(IllegalArgumentException iae)
             {
               throw new InjectionException(iae);
             }
           }
+
+          if (foundIndex == -1)
+          {
+            iterator.remove();
+            continue;
+          }
         }
       }
+    }
+
+    private int findBundleNameWithPatterns(String symbolicName, String[] bundleNames, Pattern[] patterns)
+    {
+      int foundIndex = -1;
+      for(int i = 0; i < bundleNames.length; i++)
+      {
+        // check with regex
+        if (patterns[i] == null)
+        {
+          String regexpPattern = Pattern.quote(bundleNames[i]);
+          regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
+          regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
+          regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
+          patterns[i] = Pattern.compile(regexpPattern);
+        }
+
+        if (patterns[i].matcher(symbolicName).matches())
+        {
+          foundIndex = i;
+          break;
+        }
+      }
+      return foundIndex;
+    }
+
+    private int findBundleName(String symbolicName, String[] bundleNames)
+    {
+      int foundIndex = -1;
+      for(int i = 0; i < bundleNames.length; i++)
+      {
+        if (symbolicName.equals(bundleNames[i]))
+        {
+          foundIndex = i;
+          break;
+        }
+      }
+      return foundIndex;
     }
 
     void fillAllServices()
