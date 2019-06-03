@@ -80,6 +80,13 @@ and TodoService2 implementations
       [Enter License Description here.]
    </license>
 
+   <requires>
+      <import plugin="javax.inject" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.e4.core.di"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.eclipse.osgi.services"/>
+   </requires>
+
    <plugin
          id="cl.annotation"
          download-size="0"
