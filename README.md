@@ -1,4 +1,4 @@
-# OSGi annotation for injection v1.1.0
+# OSGi annotation for injection v1.2.0
 
 Allow to inject the OSGi service with multiple criterions
 
@@ -61,23 +61,23 @@ ITodoService todoService; // InjectionException 2 implementations exist with pro
 # To inject service with bundle name
 ```
 @Inject
-@OSGiNamed(bundleName = "cl.annotation.test")
+@OSGiNamed(bundleNames = "cl.annotation.test")
 ITodoService todoService;
 ```
 ```
 @Inject
-@OSGiNamed(bundleName = "cl.annotation.*")
+@OSGiNamed(bundleNames = "cl.annotation.*")
 ITodoService todoService;
 ```
 # To inject service with bundle version range
 ```
 @Inject
-@OSGiNamed(bundleVersionRange = "1.0.0")
+@OSGiNamed(bundleVersionRanges = "1.0.0")
 ITodoService todoService;
 ```
 ```
 @Inject
-@OSGiNamed(bundleVersionRange = "[1.0.0,2.0.0)")
+@OSGiNamed(bundleVersionRanges = "[1.0.0,2.0.0)")
 ITodoService todoService;
 ```
 # To retrieve all implementations

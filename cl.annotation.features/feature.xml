@@ -6,81 +6,70 @@
       provider-name="CL">
 
    <description>
-      OSGi annotation for injection v1.1.0
+      OSGi annotation for injection v1.2.0
 Allow to inject the OSGi service with multiple criterions
-
 # Multiple service with same interface
 @Component(name = &quot;TODO1&quot;, property = {&quot;service.ranking:Integer=1&quot;,&quot;key=value&quot;)
 @MyAnnotation1
 public class TodoService1 implements ITodoService, IRunnable
 {
-  ...
+...
 }
-
 @Component(name = &quot;TODO2&quot;, property = &quot;service.ranking:Integer=2&quot;,&quot;key=value&quot;)
 @MyAnnotation2
 public class TodoService2 implements ITodoService
 {
-  ...
+...
 }
-
 # To inject service with component.name
 @Inject
 @OSGiNamed(&quot;TODO1&quot;)
 ITodoService todoService; // get TodoService1 implementation
-
 # To inject service with property values
 @Inject
 @OSGiNamed(property = {&quot;service.ranking=2&quot;})
 ITodoService todoService; // get TodoService2 implementation
-
 # To inject service with filter using LDAP format
 @Inject
 @OSGiNamed(filter = &quot;(&amp;(service.ranking=2)(key=value))&quot;)
 ITodoService todoService; // get TodoService2 implementation
-
 # To inject service with annotation
 @Inject
 @OSGiNamed(annotations = MyAnnotation2.class)
 ITodoService todoService; // get TodoService2 implementation
-
 # To inject service with type
 @Inject
 @OSGiNamed(types = Runnable.class)
 ITodoService todoService; // get TodoService1 implementation
-
 # To inject service with highest ranking
 @Inject
 @OSGiNamed(property = &quot;key=value&quot;)
-ITodoService todoService; // get TodoService2 implementation service.ranking is highest
-
+ITodoService todoService; // get TodoService2 implementation
+service.ranking is highest
 @Inject
-@OSGiNamed(property = &quot;key=value&quot;, takeHighestRankingIfMultiple= false)
-ITodoService todoService; // InjectionException 2 implementations exist with property &quot;key=value&quot;
-
+@OSGiNamed(property = &quot;key=value&quot;, takeHighestRankingIfMultiple=
+false)
+ITodoService todoService; // InjectionException 2 implementations
+exist with property &quot;key=value&quot;
 # To inject service with bundle name
 @Inject
-@OSGiNamed(bundleName = &quot;cl.annotation.test&quot;)
+@OSGiNamed(bundleNames = &quot;cl.annotation.test&quot;)
 ITodoService todoService;
-
 @Inject
-@OSGiNamed(bundleName = &quot;cl.annotation.*&quot;)
+@OSGiNamed(bundleNames = &quot;cl.annotation.*&quot;)
 ITodoService todoService;
-
 # To inject service with bundle version range
-
 @Inject
-@OSGiNamed(bundleVersionRange = &quot;1.0.0&quot;)
+@OSGiNamed(bundleVersionRanges = &quot;1.0.0&quot;)
 ITodoService todoService;
-
 @Inject
-@OSGiNamed(bundleVersionRange = &quot;[1.0.0,2.0.0)&quot;)
+@OSGiNamed(bundleVersionRanges = &quot;[1.0.0,2.0.0)&quot;)
 ITodoService todoService;
-
 # To retrieve all implementations
 @Inject
 @OSGiNamed(&lt;criterion&gt;)
-Collection&lt;? extends ITodoService&gt; todoServices; // get TodoService1 and TodoService2 implementations
+Collection&lt;? extends ITodoService&gt; todoServices; // get TodoService1
+and TodoService2 implementations
    </description>
 
    <copyright url="http://www.example.com/copyright">
