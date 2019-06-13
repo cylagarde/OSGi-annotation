@@ -65,7 +65,9 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     String filter = osgiNamed.filter();
     boolean takeHighestRankingIfMultiple = osgiNamed.takeHighestRankingIfMultiple();
     Class<? extends Annotation>[] annotations = osgiNamed.annotations();
+    Class<? extends Annotation>[] notHaveAnnotations = osgiNamed.notHaveAnnotations();
     Class<?>[] types = osgiNamed.types();
+    Class<?>[] notHaveTypes = osgiNamed.notHaveTypes();
     String[] bundleNames = osgiNamed.bundleNames();
     String[] bundleVersionRanges = osgiNamed.bundleVersionRanges();
 
@@ -136,30 +138,28 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     Status status = new Status();
     status.refs = refs;
 
-    status.filterAnnotations(annotations);
-    status.filterTypes(types);
+    status.filterAnnotations(annotations, notHaveAnnotations);
+    status.filterTypes(types, notHaveTypes);
     status.filterBundles(bundleNames, bundleVersionRanges);
-
-    //
-    int serviceCount = status.serviceCount();
-    if (serviceCount == 0)
-    {
-      if (isCollection)
-        return Collections.emptyList();
-      if (descriptor.hasQualifier(Optional.class))
-        return null;
-      return IInjector.NOT_A_VALUE;
-    }
 
     //
     if (isCollection)
       return status.getServices();
 
     //
+    int serviceCount = status.serviceCount();
+    if (serviceCount == 0)
+    {
+      if (descriptor.hasQualifier(Optional.class))
+        return null;
+      return IInjector.NOT_A_VALUE;
+    }
+
+    //
     if (takeHighestRankingIfMultiple || serviceCount == 1)
     {
       Object service = status.getFirstService();
-      return isCollection? Collections.singletonList(service) : service;
+      return service;
     }
 
     throw new InjectionException("Unable to process \"" + requestor + "\": " + serviceCount + " values were found for the argument \"" + descriptor + "\"");
@@ -202,14 +202,16 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     ServiceReference<?>[] refs;
     List<Object> services = null;
 
-    void filterTypes(Class<?>[] types)
+    void filterTypes(Class<?>[] types, Class<?>[] notHaveTypes)
     {
-      if (types.length != 0)
+      if (types.length != 0 || notHaveTypes.length != 0)
       {
         fillAllServices();
+
         for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
         {
           Object service = iterator.next();
+          boolean removeService = false;
 
           // check all types
           for(Class<?> type : types)
@@ -217,22 +219,38 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
             // if service is not instance of type then remove service
             if (!type.isInstance(service))
             {
-              iterator.remove();
+              removeService = true;
               break;
             }
           }
+
+          // check all types
+          for(Class<?> notHaveType : notHaveTypes)
+          {
+            // if service is instance of type then remove service
+            if (notHaveType.isInstance(service))
+            {
+              removeService = true;
+              break;
+            }
+          }
+
+          if (removeService)
+            iterator.remove();
         }
       }
     }
 
-    void filterAnnotations(Class<? extends Annotation>[] annotations)
+    void filterAnnotations(Class<? extends Annotation>[] annotations, Class<? extends Annotation>[] notHaveAnnotations)
     {
-      if (annotations.length != 0)
+      if (annotations.length != 0 || notHaveAnnotations.length != 0)
       {
         fillAllServices();
+
         for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
         {
           Object service = iterator.next();
+          boolean removeService = false;
 
           // check all annotations
           for(Class<? extends Annotation> annotation : annotations)
@@ -240,10 +258,24 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
             // if annotation not found then remove service
             if (service.getClass().getAnnotation(annotation) == null)
             {
-              iterator.remove();
+              removeService = true;
               break;
             }
           }
+
+          // check all annotations
+          for(Class<? extends Annotation> notHaveAnnotation : notHaveAnnotations)
+          {
+            // if annotation found then remove service
+            if (service.getClass().getAnnotation(notHaveAnnotation) != null)
+            {
+              removeService = true;
+              break;
+            }
+          }
+
+          if (removeService)
+            iterator.remove();
         }
       }
     }

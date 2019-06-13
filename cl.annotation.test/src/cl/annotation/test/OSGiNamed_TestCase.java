@@ -46,7 +46,7 @@ import cl.annotation.internal.OSGiNamedObjectSupplier;
 /**
  * The class <b>OSGiNamed_TestCase</b> allows to.<br>
  */
-@SuppressWarnings({"unchecked", "restriction", "unused"})
+@SuppressWarnings({"unchecked", "restriction", "unused", "static-method"})
 public class OSGiNamed_TestCase
 {
   static OSGiNamedObjectSupplier osgiNamedObjectSupplier = new OSGiNamedObjectSupplier();
@@ -55,7 +55,7 @@ public class OSGiNamed_TestCase
   public void testFake()
   {
     Type desiredType = IFake.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -67,7 +67,7 @@ public class OSGiNamed_TestCase
   public void testOptionalFake()
   {
     Type desiredType = IFake.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0]), new OptionalImpl()};
+    Annotation[] annotations = {new OSGiNamedBuilder().build(), new OptionalImpl()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -79,7 +79,7 @@ public class OSGiNamed_TestCase
   public void testOneService()
   {
     Type desiredType = IOneService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -91,7 +91,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_takeHighestRankingIfMultiple()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, false, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withTakeHighestRankingIfMultiple(false).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -102,7 +102,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -115,7 +115,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_name()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("Run1", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withValue("Run1").build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -123,7 +123,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("Run2", new String[]{}, "", new Class[]{}, new Class[]{}, false, new String[0], new String[0]);
+    annotations[0] = new OSGiNamedBuilder().withValue("Run2").build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -134,7 +134,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_property()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"p=Run1"}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withProperty(new String[]{"p=Run1"}).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -142,7 +142,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{"p=Run2"}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0]);
+    annotations[0] = new OSGiNamedBuilder().withProperty(new String[]{"p=Run2"}).build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -153,7 +153,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_filter()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "(p=Run1)", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withFilter("(p=Run1)").build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -161,7 +161,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "(p=Run2)", new Class[]{}, new Class[]{}, true, new String[0], new String[0]);
+    annotations[0] = new OSGiNamedBuilder().withFilter("(p=Run2)").build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -172,7 +172,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_annotations()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun1.class}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withAnnotations(new Class[]{ARun1.class}).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -180,18 +180,37 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{ARun2.class}, new Class[]{}, true, new String[0], new String[0]);
+    annotations[0] = new OSGiNamedBuilder().withAnnotations(new Class[]{ARun2.class}).build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
     assertTrue(Run2.class.isInstance(service));
+  }
+
+  @Test
+  public void testMultipleService_notHaveAnnotations()
+  {
+    Type desiredType = IMultipleService.class;
+    Annotation[] annotations = {new OSGiNamedBuilder().withNotHaveAnnotations(new Class[]{ARun1.class}).build()};
+    IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
+    IRequestor requestor = null;
+
+    Object service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
+    assertNotNull(service);
+    assertTrue(Run2.class.isInstance(service));
+
+    annotations[0] = new OSGiNamedBuilder().withNotHaveAnnotations(new Class[]{ARun2.class}).build();
+    descriptor = new ObjectDescriptor(desiredType, annotations);
+    service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
+    assertNotNull(service);
+    assertTrue(Run1.class.isInstance(service));
   }
 
   @Test
   public void testMultipleService_types()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun1.class}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withTypes(new Class[]{IRun1.class}).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -199,7 +218,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{IRun2.class}, true, new String[0], new String[0]);
+    annotations[0] = new OSGiNamedBuilder().withTypes(new Class[]{IRun2.class}).build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -207,10 +226,29 @@ public class OSGiNamed_TestCase
   }
 
   @Test
+  public void testMultipleService_notHaveTypes()
+  {
+    Type desiredType = IMultipleService.class;
+    Annotation[] annotations = {new OSGiNamedBuilder().withNotHaveTypes(new Class[]{IRun1.class}).build()};
+    IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
+    IRequestor requestor = null;
+
+    Object service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
+    assertNotNull(service);
+    assertTrue(Run2.class.isInstance(service));
+
+    annotations[0] = new OSGiNamedBuilder().withNotHaveTypes(new Class[]{IRun2.class}).build();
+    descriptor = new ObjectDescriptor(desiredType, annotations);
+    service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
+    assertNotNull(service);
+    assertTrue(Run1.class.isInstance(service));
+  }
+
+  @Test
   public void testMultipleService_tracking()
   {
     Type desiredType = IOneService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = new IRequestor() {
       @Override
@@ -384,7 +422,7 @@ public class OSGiNamed_TestCase
   public void testTypeGeneric() throws Exception
   {
     Type desiredType = TypeGeneric.class.getDeclaredField("typeGeneric").getGenericType();
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -396,7 +434,7 @@ public class OSGiNamed_TestCase
   public void testCollectionTypeGeneric() throws Exception
   {
     Type desiredType = TypeGeneric.class.getDeclaredField("typeGenerics").getGenericType();
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{}, "", new Class[]{}, new Class[]{}, true, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -468,7 +506,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("visa", new String[]{"p=Run1"}, "p:=Run1", new Class[]{}, new Class[]{}, false, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withValue("visa").withProperty(new String[]{"p=Run1"}).withFilter("p:=Run1").build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -479,7 +517,8 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion2()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, new String[0], new String[0])};
+    Annotation[] annotations =
+      {new OSGiNamedBuilder().withProperty(new String[]{"key=value"}).withFilter("(|(p=Run1)(p=Run2))").withAnnotations(new Class[]{ACommon.class}).withTypes(new Class[]{IMultipleService.class}).withTakeHighestRankingIfMultiple(false).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -490,7 +529,8 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion3()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedImpl("fake", new String[]{"key=value"}, "(|(p=Run1)(p=Run2))", new Class[]{ACommon.class}, new Class[]{IMultipleService.class}, false, new String[0], new String[0])};
+    Annotation[] annotations = {new OSGiNamedBuilder().withValue("fake").withProperty(new String[]{"key=value"}).withFilter("(|(p=Run1)(p=Run2))").withAnnotations(new Class[]{ACommon.class}).withTypes(new Class[]{IMultipleService.class})
+      .withTakeHighestRankingIfMultiple(false).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -500,24 +540,98 @@ public class OSGiNamed_TestCase
 
   ///////////////////////////////////////////
 
-  final class OSGiNamedImpl implements OSGiNamed
+  static final class OSGiNamedBuilder
+  {
+    String value = "";
+    String[] property = {};
+    String filter = "";
+    Class<? extends Annotation>[] annotations = new Class[0];
+    Class<? extends Annotation>[] notHaveAnnotations = new Class[0];
+    Class<?>[] types = {};
+    Class<?>[] notHaveTypes = {};
+    boolean takeHighestRankingIfMultiple = true;
+    String[] bundleNames = {};
+    String[] bundleVersions = {};
+
+    OSGiNamed build()
+    {
+      return new OSGiNamedImpl(value, property, filter, annotations, notHaveAnnotations, types, notHaveTypes, takeHighestRankingIfMultiple, bundleNames, bundleVersions);
+    }
+
+    OSGiNamedBuilder withFilter(String filter)
+    {
+      this.filter = filter;
+      return this;
+    }
+
+    OSGiNamedBuilder withNotHaveTypes(Class<?>[] notHaveTypes)
+    {
+      this.notHaveTypes = notHaveTypes;
+      return this;
+    }
+
+    OSGiNamedBuilder withNotHaveAnnotations(Class<? extends Annotation>[] notHaveAnnotations)
+    {
+      this.notHaveAnnotations = notHaveAnnotations;
+      return this;
+    }
+
+    OSGiNamedBuilder withTypes(Class<?>[] types)
+    {
+      this.types = types;
+      return this;
+    }
+
+    OSGiNamedBuilder withAnnotations(Class<? extends Annotation>[] annotations)
+    {
+      this.annotations = annotations;
+      return this;
+    }
+
+    OSGiNamedBuilder withProperty(String[] property)
+    {
+      this.property = property;
+      return this;
+    }
+
+    OSGiNamedBuilder withTakeHighestRankingIfMultiple(boolean takeHighestRankingIfMultiple)
+    {
+      this.takeHighestRankingIfMultiple = takeHighestRankingIfMultiple;
+      return this;
+    }
+
+    OSGiNamedBuilder withValue(String value)
+    {
+      this.value = value;
+      return this;
+    }
+  }
+
+  static final class OSGiNamedImpl implements OSGiNamed
   {
     final String value;
     final String[] property;
     final String filter;
-    final Class<?>[] types;
     final Class<? extends Annotation>[] annotations;
+    final Class<? extends Annotation>[] notHaveAnnotations;
+    final Class<?>[] types;
+    final Class<?>[] notHaveTypes;
     final boolean takeHighestRankingIfMultiple;
     final String[] bundleNames;
     final String[] bundleVersions;
 
-    OSGiNamedImpl(String value, String[] property, String filter, Class<? extends Annotation>[] annotations, Class<?>[] types, boolean takeHighestRankingIfMultiple, String[] bundleNames, String[] bundleVersions)
+    OSGiNamedImpl(String value, String[] property, String filter,
+      Class<? extends Annotation>[] annotations, Class<? extends Annotation>[] notHaveAnnotations,
+      Class<?>[] types, Class<?>[] notHaveTypes,
+      boolean takeHighestRankingIfMultiple, String[] bundleNames, String[] bundleVersions)
     {
       this.value = value;
       this.property = property;
       this.filter = filter;
       this.annotations = annotations;
+      this.notHaveAnnotations = notHaveAnnotations;
       this.types = types;
+      this.notHaveTypes = notHaveTypes;
       this.takeHighestRankingIfMultiple = takeHighestRankingIfMultiple;
       this.bundleNames = bundleNames;
       this.bundleVersions = bundleVersions;
@@ -575,6 +689,18 @@ public class OSGiNamed_TestCase
     public String[] bundleVersionRanges()
     {
       return bundleVersions;
+    }
+
+    @Override
+    public Class<? extends Annotation>[] notHaveAnnotations()
+    {
+      return notHaveAnnotations;
+    }
+
+    @Override
+    public Class<?>[] notHaveTypes()
+    {
+      return notHaveTypes;
     }
   }
 

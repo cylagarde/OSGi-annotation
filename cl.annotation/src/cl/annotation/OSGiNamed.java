@@ -30,8 +30,14 @@ public @interface OSGiNamed
   /** service annotations */
   Class<? extends Annotation>[] annotations() default {};
 
+  /** service annotations */
+  Class<? extends Annotation>[] notHaveAnnotations() default {};
+
   /** service types */
   Class<?>[] types() default {};
+
+  /** service types */
+  Class<?>[] notHaveTypes() default {};
 
   /** bundle name */
   String[] bundleNames() default {};

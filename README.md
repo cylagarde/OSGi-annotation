@@ -1,6 +1,11 @@
-# OSGi annotation for injection v1.2.0
+# OSGi annotation for injection v1.3.0
 
 Allow to inject the OSGi service with multiple criterions
+
+## Install
+```
+https://raw.githubusercontent.com/cylagarde/OSGi-annotation/master/cl.annotation.update_site
+```
 
 # Multiple service with same interface
 ```
@@ -42,11 +47,21 @@ ITodoService todoService; // get TodoService2 implementation
 @OSGiNamed(annotations = MyAnnotation2.class)
 ITodoService todoService; // get TodoService2 implementation
 ```
+```
+@Inject
+@OSGiNamed(notHaveAnnotations = MyAnnotation2.class)
+ITodoService todoService; // get TodoService1 implementation
+```
 # To inject service with type
 ```
 @Inject
 @OSGiNamed(types = Runnable.class)
 ITodoService todoService; // get TodoService1 implementation
+```
+```
+@Inject
+@OSGiNamed(notHaveTypes = Runnable.class)
+ITodoService todoService; // get TodoService2 implementation
 ```
 # To inject service with highest ranking
 ```
