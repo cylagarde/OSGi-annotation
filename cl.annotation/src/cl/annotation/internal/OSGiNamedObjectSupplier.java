@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -138,9 +137,11 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     Status status = new Status();
     status.refs = refs;
 
-    status.filterAnnotations(annotations, notHaveAnnotations);
-    status.filterTypes(types, notHaveTypes);
     status.filterBundles(bundleNames, bundleVersionRanges);
+    status.filterAnnotations(annotations);
+    status.filterNotHaveAnnotations(notHaveAnnotations);
+    status.filterTypes(types);
+    status.filterNotHaveTypes(notHaveTypes);
 
     //
     if (isCollection)
@@ -197,85 +198,105 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     return generatedFilter;
   }
 
-  private class Status
+  private final class Status
   {
     ServiceReference<?>[] refs;
     List<Object> services = null;
 
-    void filterTypes(Class<?>[] types, Class<?>[] notHaveTypes)
+    void filterAnnotations(Class<? extends Annotation>[] annotations)
     {
-      if (types.length != 0 || notHaveTypes.length != 0)
+      if (annotations.length != 0)
       {
         fillAllServices();
 
-        for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
+        for(int s = services.size() - 1; s >= 0; s--)
         {
-          Object service = iterator.next();
-          boolean removeService = false;
+          Object service = services.get(s);
+          Class<?> serviceClass = service.getClass();
 
-          // check all types
-          for(Class<?> type : types)
+          // check all annotations
+          for(int a = 0; a < annotations.length; a++)
           {
-            // if service is not instance of type then remove service
-            if (!type.isInstance(service))
+            // if annotation not found then remove service
+            if (serviceClass.getAnnotation(annotations[a]) == null)
             {
-              removeService = true;
+              services.remove(s);
               break;
             }
           }
-
-          // check all types
-          for(Class<?> notHaveType : notHaveTypes)
-          {
-            // if service is instance of type then remove service
-            if (notHaveType.isInstance(service))
-            {
-              removeService = true;
-              break;
-            }
-          }
-
-          if (removeService)
-            iterator.remove();
         }
       }
     }
 
-    void filterAnnotations(Class<? extends Annotation>[] annotations, Class<? extends Annotation>[] notHaveAnnotations)
+    void filterNotHaveAnnotations(Class<? extends Annotation>[] notHaveAnnotations)
     {
-      if (annotations.length != 0 || notHaveAnnotations.length != 0)
+      if (notHaveAnnotations.length != 0)
       {
         fillAllServices();
 
-        for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
+        for(int s = services.size() - 1; s >= 0; s--)
         {
-          Object service = iterator.next();
-          boolean removeService = false;
+          Object service = services.get(s);
+          Class<?> serviceClass = service.getClass();
 
           // check all annotations
-          for(Class<? extends Annotation> annotation : annotations)
-          {
-            // if annotation not found then remove service
-            if (service.getClass().getAnnotation(annotation) == null)
-            {
-              removeService = true;
-              break;
-            }
-          }
-
-          // check all annotations
-          for(Class<? extends Annotation> notHaveAnnotation : notHaveAnnotations)
+          for(int a = 0; a < notHaveAnnotations.length; a++)
           {
             // if annotation found then remove service
-            if (service.getClass().getAnnotation(notHaveAnnotation) != null)
+            if (serviceClass.getAnnotation(notHaveAnnotations[a]) != null)
             {
-              removeService = true;
+              services.remove(s);
               break;
             }
           }
+        }
+      }
+    }
 
-          if (removeService)
-            iterator.remove();
+    void filterTypes(Class<?>[] types)
+    {
+      if (types.length != 0)
+      {
+        fillAllServices();
+
+        for(int s = services.size() - 1; s >= 0; s--)
+        {
+          Object service = services.get(s);
+
+          // check all types
+          for(int t = 0; t < types.length; t++)
+          {
+            // if service is not instance of type then remove service
+            if (!types[t].isInstance(service))
+            {
+              services.remove(s);
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    void filterNotHaveTypes(Class<?>[] notHaveTypes)
+    {
+      if (notHaveTypes.length != 0)
+      {
+        fillAllServices();
+
+        for(int s = services.size() - 1; s >= 0; s--)
+        {
+          Object service = services.get(s);
+
+          // check all types
+          for(int t = 0; t < notHaveTypes.length; t++)
+          {
+            // if service is instance of type then remove service
+            if (notHaveTypes[t].isInstance(service))
+            {
+              services.remove(s);
+              break;
+            }
+          }
         }
       }
     }
@@ -299,32 +320,30 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
           }
         }
 
+        if (refs == null)
+          return;
+
         Pattern[] patterns = new Pattern[bundleNames.length];
-        fillAllServices();
-        for(Iterator<?> iterator = services.iterator(); iterator.hasNext();)
+        services = new ArrayList<>(refs.length);
+        for(ServiceReference<?> ref : refs)
         {
-          Object service = iterator.next();
-
-          Bundle bundle = FrameworkUtil.getBundle(service.getClass());
+          Bundle bundle = ref.getBundle();
           if (bundle == null)
-          {
-            iterator.remove();
             continue;
-          }
-
           String symbolicName = bundle.getSymbolicName();
 
-          // check name
+          // check bundle name
           int foundIndex = findBundleName(symbolicName, bundleNames);
           if (foundIndex == -1)
             foundIndex = findBundleNameWithPatterns(symbolicName, bundleNames, patterns);
 
-          if (foundIndex != -1)
+          if (foundIndex >= 0)
           {
             if (bundleVersionRanges.length != 0)
             {
               try
               {
+                // check bundle version
                 VersionRange versionRange = new VersionRange(bundleVersionRanges[foundIndex]);
                 if (!versionRange.includes(bundle.getVersion()))
                   foundIndex = -1;
@@ -339,6 +358,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
           {
             try
             {
+              // check bundle version
               VersionRange versionRange = new VersionRange(bundleVersionRanges[0]);
               if (versionRange.includes(bundle.getVersion()))
                 foundIndex = 0;
@@ -349,10 +369,10 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
             }
           }
 
-          if (foundIndex == -1)
+          if (foundIndex >= 0)
           {
-            iterator.remove();
-            continue;
+            Object service = bundleContext.getService(ref);
+            services.add(service);
           }
         }
       }
