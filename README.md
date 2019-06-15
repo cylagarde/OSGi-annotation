@@ -1,4 +1,4 @@
-# OSGi annotation for injection v1.3.0
+# OSGi annotation for injection v1.4.0
 
 Allow to inject the OSGi service with multiple criterions
 
@@ -26,7 +26,7 @@ public class TodoService2 implements ITodoService
 # To inject service with component.name
 ```
 @Inject
-@OSGiNamed("TODO1")
+@OSGiNamed(name = "TODO1")
 ITodoService todoService; // get TodoService1 implementation
 ```
 # To inject service with property values
@@ -44,23 +44,23 @@ ITodoService todoService; // get TodoService2 implementation
 # To inject service with annotation
 ```
 @Inject
-@OSGiNamed(annotations = MyAnnotation2.class)
+@OSGiNamed(annotation = MyAnnotation2.class)
 ITodoService todoService; // get TodoService2 implementation
 ```
 ```
 @Inject
-@OSGiNamed(notHaveAnnotations = MyAnnotation2.class)
+@OSGiNamed(notHaveAnnotation = MyAnnotation2.class)
 ITodoService todoService; // get TodoService1 implementation
 ```
 # To inject service with type
 ```
 @Inject
-@OSGiNamed(types = Runnable.class)
+@OSGiNamed(type = Runnable.class)
 ITodoService todoService; // get TodoService1 implementation
 ```
 ```
 @Inject
-@OSGiNamed(notHaveTypes = Runnable.class)
+@OSGiNamed(notHaveType = Runnable.class)
 ITodoService todoService; // get TodoService2 implementation
 ```
 # To inject service with highest ranking
@@ -76,23 +76,23 @@ ITodoService todoService; // InjectionException 2 implementations exist with pro
 # To inject service with bundle name
 ```
 @Inject
-@OSGiNamed(bundleNames = "cl.annotation.test")
+@OSGiNamed(bundleName = "cl.annotation.test")
 ITodoService todoService;
 ```
 ```
 @Inject
-@OSGiNamed(bundleNames = "cl.annotation.*")
+@OSGiNamed(bundleName = "cl.annotation.*")
 ITodoService todoService;
 ```
 # To inject service with bundle version range
 ```
 @Inject
-@OSGiNamed(bundleVersionRanges = "1.0.0")
+@OSGiNamed(bundleVersionRange = "1.0.0")
 ITodoService todoService;
 ```
 ```
 @Inject
-@OSGiNamed(bundleVersionRanges = "[1.0.0,2.0.0)")
+@OSGiNamed(bundleVersionRange = "[1.0.0,2.0.0)")
 ITodoService todoService;
 ```
 # To retrieve all implementations

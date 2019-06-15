@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OSGi Annotation for injection Test
 Bundle-SymbolicName: cl.annotation.test;singleton:=true
-Bundle-Version: 1.3.1.qualifier
+Bundle-Version: 1.4.0.qualifier
 Automatic-Module-Name: cl.annotation.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: cl.annotation;bundle-version="1.3.0",
+Require-Bundle: cl.annotation;bundle-version="1.4.0",
  org.eclipse.e4.core.contexts,
  org.junit;bundle-version="4.12.0",
  javax.annotation

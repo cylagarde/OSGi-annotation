@@ -16,7 +16,7 @@ import javax.inject.Qualifier;
 public @interface OSGiNamed
 {
   /** service name 'component.name' */
-  String value() default "";
+  String[] name() default {};
 
   /** service property */
   String[] property() default {};
@@ -28,20 +28,20 @@ public @interface OSGiNamed
   boolean takeHighestRankingIfMultiple() default true;
 
   /** service annotations */
-  Class<? extends Annotation>[] annotations() default {};
+  Class<? extends Annotation>[] annotation() default {};
 
   /** service annotations */
-  Class<? extends Annotation>[] notHaveAnnotations() default {};
+  Class<? extends Annotation>[] notHaveAnnotation() default {};
 
-  /** service types */
-  Class<?>[] types() default {};
+  /** service type */
+  Class<?>[] type() default {};
 
-  /** service types */
-  Class<?>[] notHaveTypes() default {};
+  /** service type */
+  Class<?>[] notHaveType() default {};
 
   /** bundle name */
-  String[] bundleNames() default {};
+  String[] bundleName() default {};
 
   /** bundle version range */
-  String[] bundleVersionRanges() default {};
+  String[] bundleVersionRange() default {};
 }

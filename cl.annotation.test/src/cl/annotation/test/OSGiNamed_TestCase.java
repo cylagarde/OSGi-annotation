@@ -115,7 +115,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_name()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedBuilder().withValue("Run1").build()};
+    Annotation[] annotations = {new OSGiNamedBuilder().withName("Run1").build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -123,7 +123,7 @@ public class OSGiNamed_TestCase
     assertNotNull(service);
     assertTrue(Run1.class.isInstance(service));
 
-    annotations[0] = new OSGiNamedBuilder().withValue("Run2").build();
+    annotations[0] = new OSGiNamedBuilder().withName("Run2").build();
     descriptor = new ObjectDescriptor(desiredType, annotations);
     service = osgiNamedObjectSupplier.get(descriptor, requestor, false, false);
     assertNotNull(service);
@@ -376,6 +376,7 @@ public class OSGiNamed_TestCase
     assertEquals(2, collectionService.multipleServices.size());
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
+    assertEquals(2, collectionService.multipleServices4.size());
     assertEquals(collectionService.multipleServices, collectionService.multipleServices2);
 
     List<?> list = Arrays.asList(collectionService.multipleServices.toArray());
@@ -383,6 +384,7 @@ public class OSGiNamed_TestCase
     assertTrue(Run1.class.isInstance(list.get(1)));
 
     Hashtable<String, Object> properties = new Hashtable<>();
+    properties.put("component.name", "Run3");
     properties.put("service.ranking", 3);
     properties.put("key", "value");
     Run3 run3 = new Run3();
@@ -394,6 +396,7 @@ public class OSGiNamed_TestCase
       assertEquals(3, collectionService.multipleServices.size());
       assertEquals(3, collectionService.multipleServices2.size());
       assertEquals(1, collectionService.multipleServices3.size());
+      assertEquals(3, collectionService.multipleServices4.size());
       assertTrue(collectionService.multipleServices.contains(run3));
       assertTrue(collectionService.multipleServices2.contains(run3));
       assertEquals(collectionService.multipleServices, collectionService.multipleServices2);
@@ -412,6 +415,7 @@ public class OSGiNamed_TestCase
     assertEquals(2, collectionService.multipleServices.size());
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
+    assertEquals(2, collectionService.multipleServices4.size());
     assertFalse(collectionService.multipleServices.contains(run3));
     assertFalse(collectionService.multipleServices2.contains(run3));
 
@@ -506,7 +510,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedBuilder().withValue("visa").withProperty(new String[]{"p=Run1"}).withFilter("p:=Run1").build()};
+    Annotation[] annotations = {new OSGiNamedBuilder().withName("visa").withProperty(new String[]{"p=Run1"}).withFilter("p:=Run1").build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
 
@@ -529,7 +533,7 @@ public class OSGiNamed_TestCase
   public void testMultipleService_bad_criterion3()
   {
     Type desiredType = IMultipleService.class;
-    Annotation[] annotations = {new OSGiNamedBuilder().withValue("fake").withProperty(new String[]{"key=value"}).withFilter("(|(p=Run1)(p=Run2))").withAnnotations(new Class[]{ACommon.class}).withTypes(new Class[]{IMultipleService.class})
+    Annotation[] annotations = {new OSGiNamedBuilder().withName("fake").withProperty(new String[]{"key=value"}).withFilter("(|(p=Run1)(p=Run2))").withAnnotations(new Class[]{ACommon.class}).withTypes(new Class[]{IMultipleService.class})
       .withTakeHighestRankingIfMultiple(false).build()};
     IObjectDescriptor descriptor = new ObjectDescriptor(desiredType, annotations);
     IRequestor requestor = null;
@@ -542,7 +546,7 @@ public class OSGiNamed_TestCase
 
   static final class OSGiNamedBuilder
   {
-    String value = "";
+    String[] names = {};
     String[] property = {};
     String filter = "";
     Class<? extends Annotation>[] annotations = new Class[0];
@@ -555,7 +559,7 @@ public class OSGiNamed_TestCase
 
     OSGiNamed build()
     {
-      return new OSGiNamedImpl(value, property, filter, annotations, notHaveAnnotations, types, notHaveTypes, takeHighestRankingIfMultiple, bundleNames, bundleVersions);
+      return new OSGiNamedImpl(names, property, filter, annotations, notHaveAnnotations, types, notHaveTypes, takeHighestRankingIfMultiple, bundleNames, bundleVersions);
     }
 
     OSGiNamedBuilder withFilter(String filter)
@@ -600,16 +604,21 @@ public class OSGiNamed_TestCase
       return this;
     }
 
-    OSGiNamedBuilder withValue(String value)
+    OSGiNamedBuilder withName(String name)
     {
-      this.value = value;
+      return withNames(new String[]{name});
+    }
+
+    OSGiNamedBuilder withNames(String[] names)
+    {
+      this.names = names;
       return this;
     }
   }
 
   static final class OSGiNamedImpl implements OSGiNamed
   {
-    final String value;
+    final String[] names;
     final String[] property;
     final String filter;
     final Class<? extends Annotation>[] annotations;
@@ -620,12 +629,12 @@ public class OSGiNamed_TestCase
     final String[] bundleNames;
     final String[] bundleVersions;
 
-    OSGiNamedImpl(String value, String[] property, String filter,
+    OSGiNamedImpl(String[] names, String[] property, String filter,
       Class<? extends Annotation>[] annotations, Class<? extends Annotation>[] notHaveAnnotations,
       Class<?>[] types, Class<?>[] notHaveTypes,
       boolean takeHighestRankingIfMultiple, String[] bundleNames, String[] bundleVersions)
     {
-      this.value = value;
+      this.names = names;
       this.property = property;
       this.filter = filter;
       this.annotations = annotations;
@@ -644,9 +653,9 @@ public class OSGiNamed_TestCase
     }
 
     @Override
-    public String value()
+    public String[] name()
     {
-      return value;
+      return names;
     }
 
     @Override
@@ -668,37 +677,37 @@ public class OSGiNamed_TestCase
     }
 
     @Override
-    public Class<? extends Annotation>[] annotations()
+    public Class<? extends Annotation>[] annotation()
     {
       return annotations;
     }
 
     @Override
-    public Class<?>[] types()
+    public Class<?>[] type()
     {
       return types;
     }
 
     @Override
-    public String[] bundleNames()
+    public String[] bundleName()
     {
       return bundleNames;
     }
 
     @Override
-    public String[] bundleVersionRanges()
+    public String[] bundleVersionRange()
     {
       return bundleVersions;
     }
 
     @Override
-    public Class<? extends Annotation>[] notHaveAnnotations()
+    public Class<? extends Annotation>[] notHaveAnnotation()
     {
       return notHaveAnnotations;
     }
 
     @Override
-    public Class<?>[] notHaveTypes()
+    public Class<?>[] notHaveType()
     {
       return notHaveTypes;
     }
@@ -736,7 +745,7 @@ public class OSGiNamed_TestCase
   public static class InjectService
   {
     @Inject
-    @OSGiNamed("Run1")
+    @OSGiNamed(name = "Run1")
     IMultipleService multipleService1;
 
     @Inject
@@ -744,7 +753,7 @@ public class OSGiNamed_TestCase
     IMultipleService multipleService;
 
     @Inject
-    @OSGiNamed("Run2")
+    @OSGiNamed(name = "Run2")
     IMultipleService multipleService2;
   }
 
@@ -765,6 +774,10 @@ public class OSGiNamed_TestCase
     Collection<IMultipleService> multipleServices3;
 
     @Inject
+    @OSGiNamed(name = {"Run1", "Run2", "Run3"})
+    Collection<IMultipleService> multipleServices4;
+
+    @Inject
     void setServices(@OSGiNamed Collection<IMultipleService> multipleServices2)
     {
       call++;
@@ -775,41 +788,41 @@ public class OSGiNamed_TestCase
   {
     @Inject
     @Optional
-    @OSGiNamed(bundleNames = "!fake!")
+    @OSGiNamed(bundleName = "!fake!")
     IMultipleService badVersionName;
 
     @Inject
-    @OSGiNamed(bundleNames = "cl.annotation.test")
+    @OSGiNamed(bundleName = "cl.annotation.test")
     IMultipleService validVersionName;
 
     @Inject
-    @OSGiNamed(bundleNames = "cl.annotation.*")
+    @OSGiNamed(bundleName = "cl.annotation.*")
     IMultipleService validVersionName2;
 
     @Inject
-    @OSGiNamed(bundleVersionRanges = "1.0.0")
+    @OSGiNamed(bundleVersionRange = "1.0.0")
     IMultipleService validVersionRange;
 
     @Inject
-    @OSGiNamed(bundleVersionRanges = "[1.0.0,100)")
+    @OSGiNamed(bundleVersionRange = "[1.0.0,100)")
     IMultipleService validVersionRange2;
 
     @Inject
     @Optional
-    @OSGiNamed(bundleVersionRanges = "[0.0.1, 1.0.0)")
+    @OSGiNamed(bundleVersionRange = "[0.0.1, 1.0.0)")
     IMultipleService badVersionRange;
 
     @Inject
-    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = "1.0.0")
+    @OSGiNamed(bundleName = "cl.annotation.test", bundleVersionRange = "1.0.0")
     IMultipleService validVersionNameRange;
 
     @Inject
-    @OSGiNamed(bundleNames = {"cl.annotation.test", "cl.annotation"}, bundleVersionRanges = {"1.0.0", "1.1.0"})
+    @OSGiNamed(bundleName = {"cl.annotation.test", "cl.annotation"}, bundleVersionRange = {"1.0.0", "1.1.0"})
     IMultipleService validVersionNameRange2;
 
     @Inject
     @Optional
-    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = "100.0.0")
+    @OSGiNamed(bundleName = "cl.annotation.test", bundleVersionRange = "100.0.0")
     IMultipleService badVersionRange2;
 
   }
@@ -817,28 +830,28 @@ public class OSGiNamed_TestCase
   public static class BundleServiceBadInput
   {
     @Inject
-    @OSGiNamed(bundleNames = "cl.annotation.test", bundleVersionRanges = {"1.0.0", "1.0.0"})
+    @OSGiNamed(bundleName = "cl.annotation.test", bundleVersionRange = {"1.0.0", "1.0.0"})
     IMultipleService badInput;
   }
 
   public static class BundleServiceBadInput2
   {
     @Inject
-    @OSGiNamed(bundleNames = {"cl.annotation.test", "cl.annotation"}, bundleVersionRanges = {"1.0.0"})
+    @OSGiNamed(bundleName = {"cl.annotation.test", "cl.annotation"}, bundleVersionRange = {"1.0.0"})
     IMultipleService badInput;
   }
 
   public static class BundleServiceBadInput3
   {
     @Inject
-    @OSGiNamed(bundleNames = {"cl.annotation.test"}, bundleVersionRanges = {"fake"})
+    @OSGiNamed(bundleName = {"cl.annotation.test"}, bundleVersionRange = {"fake"})
     IMultipleService badInput;
   }
 
   public static class BundleServiceBadInput4
   {
     @Inject
-    @OSGiNamed(bundleVersionRanges = {"fake"})
+    @OSGiNamed(bundleVersionRange = {"fake"})
     IMultipleService badInput;
   }
 

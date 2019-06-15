@@ -59,16 +59,16 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
   public Object get(IObjectDescriptor descriptor, IRequestor requestor, boolean track, boolean group)
   {
     OSGiNamed osgiNamed = descriptor.getQualifier(OSGiNamed.class);
-    String name = osgiNamed.value();
+    String[] names = osgiNamed.name();
     String[] property = osgiNamed.property();
     String filter = osgiNamed.filter();
     boolean takeHighestRankingIfMultiple = osgiNamed.takeHighestRankingIfMultiple();
-    Class<? extends Annotation>[] annotations = osgiNamed.annotations();
-    Class<? extends Annotation>[] notHaveAnnotations = osgiNamed.notHaveAnnotations();
-    Class<?>[] types = osgiNamed.types();
-    Class<?>[] notHaveTypes = osgiNamed.notHaveTypes();
-    String[] bundleNames = osgiNamed.bundleNames();
-    String[] bundleVersionRanges = osgiNamed.bundleVersionRanges();
+    Class<? extends Annotation>[] annotations = osgiNamed.annotation();
+    Class<? extends Annotation>[] notHaveAnnotations = osgiNamed.notHaveAnnotation();
+    Class<?>[] types = osgiNamed.type();
+    Class<?>[] notHaveTypes = osgiNamed.notHaveType();
+    String[] bundleNames = osgiNamed.bundleName();
+    String[] bundleVersionRanges = osgiNamed.bundleVersionRange();
 
     Type desiredType = descriptor.getDesiredType();
     Class<?> desiredClass = getDesiredClass(desiredType);
@@ -87,7 +87,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     }
 
     String typeName = desiredType.getTypeName();
-    String generatedFilter = generateFilter(name, property, filter);
+    String generatedFilter = generateFilter(names, property, filter);
 
     ServiceListener serviceListener = requestor == null? null : serviceListeners.get(requestor);
     if (track && requestor != null)
@@ -166,13 +166,19 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     throw new InjectionException("Unable to process \"" + requestor + "\": " + serviceCount + " values were found for the argument \"" + descriptor + "\"");
   }
 
-  private static String generateFilter(String name, String[] property, String filter)
+  private static String generateFilter(String[] names, String[] property, String filter)
   {
     boolean multipleFilter = false;
 
     String generatedFilter = null;
-    if (!"".equals(name))
-      generatedFilter = "(component.name=" + name + ")";
+    if (names.length != 0)
+    {
+      generatedFilter = "";
+      for(String name : names)
+        generatedFilter += "(component.name=" + name + ")";
+      if (names.length > 1)
+        generatedFilter = "(|" + generatedFilter + ")";
+    }
 
     if (property.length != 0)
     {
