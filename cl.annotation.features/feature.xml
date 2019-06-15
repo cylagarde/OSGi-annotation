@@ -8,10 +8,10 @@
    <description>
       OSGi annotation for injection v1.4.0
 
-Allow to inject the OSGi service with multiple criterions
+Allow to inject the OSGi service with multiple criterion
 
 @Inject
-@OSGiNamed(&lt;criterions&gt;)
+@OSGiNamed(&lt;criterion&gt;)
 IOSGiService osgiService;
    </description>
 

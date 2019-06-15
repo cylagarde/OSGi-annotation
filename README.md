@@ -1,6 +1,6 @@
 # OSGi annotation for injection v1.4.0
 
-Allow to inject the OSGi service with multiple criterions
+Allow to inject the OSGi service with multiple criterion
 
 ## Install
 ```
@@ -29,6 +29,11 @@ public class TodoService2 implements ITodoService
 @OSGiNamed(name = "TODO1")
 ITodoService todoService; // get TodoService1 implementation
 ```
+```
+@Inject
+@OSGiNamed(name = {"TODO1", "TODO2"})
+Collection<ITodoService> todoServices; // get TodoService1 and TodoService2 implementations
+```
 # To inject service with property values
 ```
 @Inject
@@ -44,13 +49,13 @@ ITodoService todoService; // get TodoService2 implementation
 # To inject service with annotation
 ```
 @Inject
-@OSGiNamed(annotation = MyAnnotation2.class)
-ITodoService todoService; // get TodoService2 implementation
+@OSGiNamed(annotation = MyAnnotation1.class)
+ITodoService todoService; // get TodoService1 implementation
 ```
 ```
 @Inject
-@OSGiNamed(notHaveAnnotation = MyAnnotation2.class)
-ITodoService todoService; // get TodoService1 implementation
+@OSGiNamed(notHaveAnnotation = MyAnnotation1.class)
+ITodoService todoService; // get TodoService2 implementation
 ```
 # To inject service with type
 ```
@@ -68,7 +73,8 @@ ITodoService todoService; // get TodoService2 implementation
 @Inject
 @OSGiNamed(property = "key=value")
 ITodoService todoService; // get TodoService2 implementation service.ranking is highest
-
+```
+```
 @Inject
 @OSGiNamed(property = "key=value", takeHighestRankingIfMultiple = false)
 ITodoService todoService; // InjectionException 2 implementations exist with property "key=value"
@@ -101,6 +107,3 @@ ITodoService todoService;
 @OSGiNamed(<criterion>)
 Collection<? extends ITodoService> todoServices; // get TodoService1 and TodoService2 implementations
 ```
-
-
-
