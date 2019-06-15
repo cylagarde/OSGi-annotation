@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/cl.annotation.features_1.4.0.201906151736.jar" id="cl.annotation.features" version="1.4.0.201906151736">
+   <feature url="features/cl.annotation.features_1.4.0.qualifier.jar" id="cl.annotation.features" version="1.4.0.qualifier">
       <category name="OSGi Annotation For Injection"/>
    </feature>
    <category-def name="OSGi Annotation For Injection" label="OSGi Annotation For Injection">
