@@ -32,18 +32,6 @@ import cl.annotation.OSGiNamed;
 
 /**
  * The class <b>OSGiNamedObjectSupplier</b> allows to select object injected.<br>
- *
- * @Inject
- * @OSGiNamed("<component name>")
- * ITodoService todoService;
- * //
- * @Inject
- * @OSGiNamed(property = "service.ranking=10")
- * ITodoService todoService;
- * //
- * @Inject
- * @OSGiNamed(...)
- * Collection<? extends ITodoService> todoServices;
  */
 @Component(service = ExtendedObjectSupplier.class,
   property = "dependency.injection.annotation=cl.annotation.OSGiNamed")

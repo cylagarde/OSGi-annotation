@@ -9,14 +9,14 @@ https://raw.githubusercontent.com/cylagarde/OSGi-annotation/master/cl.annotation
 
 # Multiple service with same interface
 ```
-@Component(name = "TODO1", property = {"service.ranking:Integer=1", "key=value")
+@Component(name = "TODO1", property = {"service.ranking:Integer=1", "key=value"})
 @MyAnnotation1
 public class TodoService1 implements ITodoService, IRunnable
 {
 	...
 }
 
-@Component(name = "TODO2", property = "service.ranking:Integer=2", "key=value")
+@Component(name = "TODO2", property = {"service.ranking:Integer=2", "key=value"})
 @MyAnnotation2
 public class TodoService2 implements ITodoService
 {
