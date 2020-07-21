@@ -43,20 +43,45 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
   private final Map<Class<?>, Set<IRequestor>> listeners = new ConcurrentHashMap<>();
   private final Map<IRequestor, ServiceListener> serviceListeners = new ConcurrentHashMap<>();
 
+  private static String[] checkStringArray(String[] values)
+  {
+    return values == null? new String[0] : values;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> Class<T>[] checkClassArray(Class<T>[] values)
+  {
+    return values == null? (Class<T>[]) new Class<?>[0] : values;
+  }
+
   @Override
   public Object get(IObjectDescriptor descriptor, IRequestor requestor, boolean track, boolean group)
   {
     OSGiNamed osgiNamed = descriptor.getQualifier(OSGiNamed.class);
-    String[] names = osgiNamed.name();
-    String[] property = osgiNamed.property();
+
+    Class<? extends OSGiNamed> configurationClass = osgiNamed.configuration();
+    if (configurationClass != null && configurationClass != OSGiNamed.class)
+    {
+      try
+      {
+        osgiNamed = configurationClass.newInstance();
+      }
+      catch(InstantiationException | IllegalAccessException e)
+      {
+        return new InjectionException(e);
+      }
+    }
+
+    String[] names = checkStringArray(osgiNamed.name());
+    String[] property = checkStringArray(osgiNamed.property());
     String filter = osgiNamed.filter();
     boolean takeHighestRankingIfMultiple = osgiNamed.takeHighestRankingIfMultiple();
-    Class<? extends Annotation>[] annotations = osgiNamed.annotation();
-    Class<? extends Annotation>[] notHaveAnnotations = osgiNamed.notHaveAnnotation();
-    Class<?>[] types = osgiNamed.type();
-    Class<?>[] notHaveTypes = osgiNamed.notHaveType();
-    String[] bundleNames = osgiNamed.bundleName();
-    String[] bundleVersionRanges = osgiNamed.bundleVersionRange();
+    Class<? extends Annotation>[] annotations = checkClassArray(osgiNamed.annotation());
+    Class<? extends Annotation>[] notHaveAnnotations = checkClassArray(osgiNamed.notHaveAnnotation());
+    Class<?>[] types = checkClassArray(osgiNamed.type());
+    Class<?>[] notHaveTypes = checkClassArray(osgiNamed.notHaveType());
+    String[] bundleNames = checkStringArray(osgiNamed.bundleName());
+    String[] bundleVersionRanges = checkStringArray(osgiNamed.bundleVersionRange());
 
     Type desiredType = descriptor.getDesiredType();
     Class<?> desiredClass = getDesiredClass(desiredType);
@@ -178,7 +203,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
         generatedFilter += "(" + p + ")";
     }
 
-    if (!"".equals(filter))
+    if (filter != null && !"".equals(filter))
     {
       if (generatedFilter != null)
         multipleFilter = true;

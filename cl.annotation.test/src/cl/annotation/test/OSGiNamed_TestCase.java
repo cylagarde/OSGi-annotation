@@ -423,6 +423,17 @@ public class OSGiNamed_TestCase
   }
 
   @Test
+  public void testDelegateService()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    DelegateService delegateService = ContextInjectionFactory.make(DelegateService.class, eclipseCtx);
+    assertTrue(Run1.class.isInstance(delegateService.multipleService1));
+  }
+
+  @Test
   public void testTypeGeneric() throws Exception
   {
     Type desiredType = TypeGeneric.class.getDeclaredField("typeGeneric").getGenericType();
@@ -616,7 +627,7 @@ public class OSGiNamed_TestCase
     }
   }
 
-  static final class OSGiNamedImpl implements OSGiNamed
+  static class OSGiNamedImpl implements OSGiNamed
   {
     final String[] names;
     final String[] property;
@@ -711,6 +722,12 @@ public class OSGiNamed_TestCase
     {
       return notHaveTypes;
     }
+
+    @Override
+    public Class<? extends OSGiNamed> configuration()
+    {
+      return null;
+    }
   }
 
   class OptionalImpl implements org.eclipse.e4.core.di.annotations.Optional
@@ -781,6 +798,88 @@ public class OSGiNamed_TestCase
     void setServices(@OSGiNamed Collection<IMultipleService> multipleServices2)
     {
       call++;
+    }
+  }
+
+  public static class DelegateService
+  {
+    @Inject
+    @OSGiNamed(configuration = ConfigurationOsgi.class)
+    IMultipleService multipleService1;
+  }
+
+  public static final class ConfigurationOsgi implements OSGiNamed
+  {
+    @Override
+    public String[] name()
+    {
+      return new String[]{"Run1"};
+    }
+
+    @Override
+    public String[] property()
+    {
+      return null;
+    }
+
+    @Override
+    public String filter()
+    {
+      return null;
+    }
+
+    @Override
+    public boolean takeHighestRankingIfMultiple()
+    {
+      return false;
+    }
+
+    @Override
+    public Class<? extends Annotation>[] annotation()
+    {
+      return null;
+    }
+
+    @Override
+    public Class<? extends Annotation>[] notHaveAnnotation()
+    {
+      return null;
+    }
+
+    @Override
+    public Class<?>[] type()
+    {
+      return null;
+    }
+
+    @Override
+    public Class<?>[] notHaveType()
+    {
+      return null;
+    }
+
+    @Override
+    public String[] bundleName()
+    {
+      return null;
+    }
+
+    @Override
+    public String[] bundleVersionRange()
+    {
+      return null;
+    }
+
+    @Override
+    public Class<? extends OSGiNamed> configuration()
+    {
+      return null;
+    }
+
+    @Override
+    public Class<? extends Annotation> annotationType()
+    {
+      return OSGiNamed.class;
     }
   }
 

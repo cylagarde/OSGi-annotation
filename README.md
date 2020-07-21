@@ -1,4 +1,4 @@
-# OSGi annotation for injection v1.4.0
+# OSGi annotation for injection v1.5.0
 
 Allow to inject the OSGi service with multiple criterion
 
@@ -90,16 +90,22 @@ ITodoService todoService;
 @OSGiNamed(bundleName = "cl.annotation.*")
 ITodoService todoService;
 ```
-# To inject service with bundle version range
+# To inject service with configuration
 ```java
 @Inject
-@OSGiNamed(bundleVersionRange = "1.0.0")
+@OSGiNamed(configuration = MyConfiguration.class)
 ITodoService todoService;
-```
-```java
-@Inject
-@OSGiNamed(bundleVersionRange = "[1.0.0,2.0.0)")
-ITodoService todoService;
+
+class MyConfiguration implements OSGiNamed
+{
+  @Override
+  public String[] name()
+  {
+    return new String[]{"TODO1"};
+  }
+  
+  ...
+}
 ```
 # To retrieve all implementations
 ```java

@@ -152,4 +152,7 @@ public @interface OSGiNamed
 
   /** bundle version range */
   String[] bundleVersionRange() default {};
+
+  /** configuration */
+  Class<? extends OSGiNamed> configuration() default OSGiNamed.class;
 }
