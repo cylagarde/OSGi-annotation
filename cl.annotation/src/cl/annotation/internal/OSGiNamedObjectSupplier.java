@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.eclipse.e4.core.di.IInjector;
 import org.eclipse.e4.core.di.InjectionException;
@@ -29,13 +31,14 @@ import org.osgi.framework.VersionRange;
 import org.osgi.service.component.annotations.Component;
 
 import cl.annotation.AbstractConfiguration;
+import cl.annotation.DefaultServiceReferencePredicate;
 import cl.annotation.OSGiNamed;
 
 /**
  * The class <b>OSGiNamedObjectSupplier</b> allows to select object injected.<br>
  */
 @Component(service = ExtendedObjectSupplier.class,
-  property = "dependency.injection.annotation=cl.annotation.OSGiNamed")
+  property = ExtendedObjectSupplier.SERVICE_CONTEXT_KEY + "=cl.annotation.OSGiNamed")
 public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 {
   private static final Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
@@ -43,17 +46,6 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
   private final Map<Class<?>, Set<IRequestor>> listeners = new ConcurrentHashMap<>();
   private final Map<IRequestor, ServiceListener> serviceListeners = new ConcurrentHashMap<>();
-
-  private static String[] checkStringArray(String[] values)
-  {
-    return values == null? new String[0] : values;
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> Class<T>[] checkClassArray(Class<T>[] values)
-  {
-    return values == null? (Class<T>[]) new Class<?>[0] : values;
-  }
 
   @Override
   public Object get(IObjectDescriptor descriptor, IRequestor requestor, boolean track, boolean group)
@@ -83,6 +75,7 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     Class<?>[] notHaveTypes = checkClassArray(osgiNamed.notHaveType());
     String[] bundleNames = checkStringArray(osgiNamed.bundleName());
     String[] bundleVersionRanges = checkStringArray(osgiNamed.bundleVersionRange());
+    Class<? extends Predicate<ServiceReference<?>>> serviceReferencePredicateClass = osgiNamed.serviceReferencePredicate();
 
     Type desiredType = descriptor.getDesiredType();
     Class<?> desiredClass = getDesiredClass(desiredType);
@@ -141,6 +134,14 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
     try
     {
       refs = bundleContext.getAllServiceReferences(typeName, generatedFilter);
+
+      // filter serviceReferences
+      if (serviceReferencePredicateClass != null && serviceReferencePredicateClass != DefaultServiceReferencePredicate.class)
+      {
+        Predicate<ServiceReference<?>> serviceReferencePredicate = serviceReferencePredicateClass.newInstance();
+        refs = Stream.of(refs).filter(serviceReferencePredicate).toArray(ServiceReference<?>[]::new);
+      }
+
     }
     catch(Exception e)
     {
@@ -469,13 +470,13 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
   private void addListener(Class<?> descriptorsClass, IRequestor requestor)
   {
-    Set<IRequestor> registered = this.listeners.computeIfAbsent(descriptorsClass, dc -> ConcurrentHashMap.newKeySet());
+    Set<IRequestor> registered = listeners.computeIfAbsent(descriptorsClass, dc -> ConcurrentHashMap.newKeySet());
     registered.add(requestor);
   }
 
   private void removeListener(Class<?> descriptorsClass, IRequestor requestor)
   {
-    Set<IRequestor> registered = this.listeners.get(descriptorsClass);
+    Set<IRequestor> registered = listeners.get(descriptorsClass);
     if (registered != null)
     {
       registered.remove(requestor);
@@ -523,5 +524,16 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
       requestor.resolveArguments(false);
       requestor.execute();
     }
+  }
+
+  private static String[] checkStringArray(String[] values)
+  {
+    return values == null? new String[0] : values;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> Class<T>[] checkClassArray(Class<T>[] values)
+  {
+    return values == null? (Class<T>[]) new Class<?>[0] : values;
   }
 }

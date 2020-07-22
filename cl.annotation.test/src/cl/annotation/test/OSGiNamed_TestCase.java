@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -37,6 +38,7 @@ import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 
@@ -347,6 +349,7 @@ public class OSGiNamed_TestCase
     assertTrue(Run2.class.isInstance(injectService.multipleService));
 
     Hashtable<String, Object> properties = new Hashtable<>();
+    properties.put("component.name", "Run3");
     properties.put("service.ranking", 3);
     properties.put("key", "value");
     ServiceRegistration<IMultipleService> registerService = bundleContext.registerService(IMultipleService.class, new Run3(), properties);
@@ -361,8 +364,6 @@ public class OSGiNamed_TestCase
     }
 
     assertTrue(Run2.class.isInstance(injectService.multipleService));
-
-    ContextInjectionFactory.uninject(injectService, eclipseCtx);
   }
 
   @Test
@@ -378,6 +379,7 @@ public class OSGiNamed_TestCase
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
     assertEquals(2, collectionService.multipleServices4.size());
+    assertEquals(2, collectionService.multipleServices5.size());
     assertEquals(collectionService.multipleServices, collectionService.multipleServices2);
 
     List<?> list = Arrays.asList(collectionService.multipleServices.toArray());
@@ -398,6 +400,7 @@ public class OSGiNamed_TestCase
       assertEquals(3, collectionService.multipleServices2.size());
       assertEquals(1, collectionService.multipleServices3.size());
       assertEquals(3, collectionService.multipleServices4.size());
+      assertEquals(3, collectionService.multipleServices5.size());
       assertTrue(collectionService.multipleServices.contains(run3));
       assertTrue(collectionService.multipleServices2.contains(run3));
       assertEquals(collectionService.multipleServices, collectionService.multipleServices2);
@@ -417,10 +420,9 @@ public class OSGiNamed_TestCase
     assertEquals(2, collectionService.multipleServices2.size());
     assertEquals(0, collectionService.multipleServices3.size());
     assertEquals(2, collectionService.multipleServices4.size());
+    assertEquals(2, collectionService.multipleServices5.size());
     assertFalse(collectionService.multipleServices.contains(run3));
     assertFalse(collectionService.multipleServices2.contains(run3));
-
-    ContextInjectionFactory.uninject(collectionService, eclipseCtx);
   }
 
   @Test
@@ -432,6 +434,17 @@ public class OSGiNamed_TestCase
 
     DelegateService delegateService = ContextInjectionFactory.make(DelegateService.class, eclipseCtx);
     assertTrue(Run1.class.isInstance(delegateService.multipleService1));
+  }
+
+  @Test
+  public void testPredicateService()
+  {
+    Bundle bundle = FrameworkUtil.getBundle(OSGiNamedObjectSupplier.class);
+    BundleContext bundleContext = bundle.getBundleContext();
+    IEclipseContext eclipseCtx = EclipseContextFactory.getServiceContext(bundleContext);
+
+    PredicateService predicateService = ContextInjectionFactory.make(PredicateService.class, eclipseCtx);
+    assertTrue(Run1.class.isInstance(predicateService.multipleService1));
   }
 
   @Test
@@ -474,8 +487,6 @@ public class OSGiNamed_TestCase
     assertTrue(Run2.class.isInstance(bundleNameService.validVersionRange2));
     assertTrue(Run2.class.isInstance(bundleNameService.validVersionNameRange));
     assertNull(bundleNameService.badVersionRange2);
-
-    ContextInjectionFactory.uninject(bundleNameService, eclipseCtx);
   }
 
   @Test(expected = InjectionException.class)
@@ -784,6 +795,10 @@ public class OSGiNamed_TestCase
     Collection<IMultipleService> multipleServices4;
 
     @Inject
+    @OSGiNamed(name = {"Run*"})
+    Collection<IMultipleService> multipleServices5;
+
+    @Inject
     void setServices(@OSGiNamed Collection<IMultipleService> multipleServices2)
     {
       call++;
@@ -804,59 +819,21 @@ public class OSGiNamed_TestCase
     {
       return new String[]{"Run1"};
     }
+  }
 
-    @Override
-    public String[] property()
-    {
-      return null;
-    }
+  public static class PredicateService
+  {
+    @Inject
+    @OSGiNamed(serviceReferencePredicate = MyServiceReferencePredicate.class)
+    IMultipleService multipleService1;
+  }
 
+  public static final class MyServiceReferencePredicate implements Predicate<ServiceReference<?>>
+  {
     @Override
-    public String filter()
+    public boolean test(ServiceReference<?> ref)
     {
-      return null;
-    }
-
-    @Override
-    public boolean takeHighestRankingIfMultiple()
-    {
-      return false;
-    }
-
-    @Override
-    public Class<? extends Annotation>[] annotation()
-    {
-      return null;
-    }
-
-    @Override
-    public Class<? extends Annotation>[] notHaveAnnotation()
-    {
-      return null;
-    }
-
-    @Override
-    public Class<?>[] type()
-    {
-      return null;
-    }
-
-    @Override
-    public Class<?>[] notHaveType()
-    {
-      return null;
-    }
-
-    @Override
-    public String[] bundleName()
-    {
-      return null;
-    }
-
-    @Override
-    public String[] bundleVersionRange()
-    {
-      return null;
+      return "Run1".equals(ref.getProperty("component.name"));
     }
   }
 

@@ -1,11 +1,14 @@
 package cl.annotation;
 
 import java.lang.annotation.Annotation;
+import java.util.function.Predicate;
+
+import org.osgi.framework.ServiceReference;
 
 /**
  * The class <b>AbstractConfiguration</b> allows to.<br>
  */
-public abstract class AbstractConfiguration implements OSGiNamed
+public class AbstractConfiguration implements OSGiNamed
 {
   @Override
   public final Class<AbstractConfiguration> configuration()
@@ -75,6 +78,12 @@ public abstract class AbstractConfiguration implements OSGiNamed
 
   @Override
   public String[] bundleVersionRange()
+  {
+    return null;
+  }
+
+  @Override
+  public Class<? extends Predicate<ServiceReference<?>>> serviceReferencePredicate()
   {
     return null;
   }
