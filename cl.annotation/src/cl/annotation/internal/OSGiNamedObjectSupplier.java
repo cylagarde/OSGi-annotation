@@ -28,6 +28,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.VersionRange;
 import org.osgi.service.component.annotations.Component;
 
+import cl.annotation.AbstractConfiguration;
 import cl.annotation.OSGiNamed;
 
 /**
@@ -59,8 +60,8 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
   {
     OSGiNamed osgiNamed = descriptor.getQualifier(OSGiNamed.class);
 
-    Class<? extends OSGiNamed> configurationClass = osgiNamed.configuration();
-    if (configurationClass != null && configurationClass != OSGiNamed.class)
+    Class<? extends AbstractConfiguration> configurationClass = osgiNamed.configuration();
+    if (configurationClass != null && configurationClass != AbstractConfiguration.class)
     {
       try
       {
@@ -399,40 +400,32 @@ public final class OSGiNamedObjectSupplier extends ExtendedObjectSupplier
 
     private int findBundleNameWithPatterns(String symbolicName, String[] bundleNames, Pattern[] patterns)
     {
-      int foundIndex = -1;
-      for(int i = 0; i < bundleNames.length; i++)
+      for(int index = 0; index < bundleNames.length; index++)
       {
         // check with regex
-        if (patterns[i] == null)
+        if (patterns[index] == null)
         {
-          String regexpPattern = Pattern.quote(bundleNames[i]);
+          String regexpPattern = Pattern.quote(bundleNames[index]);
           regexpPattern = regexpPattern.replaceAll("\\*", "\\\\E.*\\\\Q");
           regexpPattern = regexpPattern.replaceAll("\\?", "\\\\E.\\\\Q");
           regexpPattern = regexpPattern.replaceAll("\\\\Q\\\\E", "");
-          patterns[i] = Pattern.compile(regexpPattern);
+          patterns[index] = Pattern.compile(regexpPattern);
         }
 
-        if (patterns[i].matcher(symbolicName).matches())
-        {
-          foundIndex = i;
-          break;
-        }
+        if (patterns[index].matcher(symbolicName).matches())
+          return index;
       }
-      return foundIndex;
+      return -1;
     }
 
     private int findBundleName(String symbolicName, String[] bundleNames)
     {
-      int foundIndex = -1;
-      for(int i = 0; i < bundleNames.length; i++)
+      for(int index = 0; index < bundleNames.length; index++)
       {
-        if (symbolicName.equals(bundleNames[i]))
-        {
-          foundIndex = i;
-          break;
-        }
+        if (symbolicName.equals(bundleNames[index]))
+          return index;
       }
-      return foundIndex;
+      return -1;
     }
 
     void fillAllServices()

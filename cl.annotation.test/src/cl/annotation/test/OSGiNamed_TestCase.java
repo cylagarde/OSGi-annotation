@@ -40,6 +40,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Component;
 
+import cl.annotation.AbstractConfiguration;
 import cl.annotation.OSGiNamed;
 import cl.annotation.internal.OSGiNamedObjectSupplier;
 
@@ -627,7 +628,7 @@ public class OSGiNamed_TestCase
     }
   }
 
-  static class OSGiNamedImpl implements OSGiNamed
+  static class OSGiNamedImpl extends AbstractConfiguration
   {
     final String[] names;
     final String[] property;
@@ -655,12 +656,6 @@ public class OSGiNamed_TestCase
       this.takeHighestRankingIfMultiple = takeHighestRankingIfMultiple;
       this.bundleNames = bundleNames;
       this.bundleVersions = bundleVersions;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType()
-    {
-      return OSGiNamed.class;
     }
 
     @Override
@@ -721,12 +716,6 @@ public class OSGiNamed_TestCase
     public Class<?>[] notHaveType()
     {
       return notHaveTypes;
-    }
-
-    @Override
-    public Class<? extends OSGiNamed> configuration()
-    {
-      return null;
     }
   }
 
@@ -808,7 +797,7 @@ public class OSGiNamed_TestCase
     IMultipleService multipleService1;
   }
 
-  public static final class ConfigurationOsgi implements OSGiNamed
+  public static final class ConfigurationOsgi extends AbstractConfiguration
   {
     @Override
     public String[] name()
@@ -868,18 +857,6 @@ public class OSGiNamed_TestCase
     public String[] bundleVersionRange()
     {
       return null;
-    }
-
-    @Override
-    public Class<? extends OSGiNamed> configuration()
-    {
-      return null;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType()
-    {
-      return OSGiNamed.class;
     }
   }
 
