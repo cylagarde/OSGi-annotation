@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: cl.annotation,
  org.eclipse.e4.core.contexts,
- org.junit;bundle-version="4.12.0",
+ org.junit,
  javax.annotation
 Service-Component: OSGI-INF/Run2.xml,
  OSGI-INF/cl.annotation.test.OSGiNamed_TestCase$OneService.xml,
